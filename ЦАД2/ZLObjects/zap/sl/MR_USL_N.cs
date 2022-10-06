@@ -36,5 +36,10 @@ namespace ЦАД2.Objects.zap.sl
         {
             this.MRFill(n[0], n[1], n[2], n[3], n[4]);
         }
+
+        public override string GetCode()
+        {
+            return IDSERV;
+        }
     }
 }

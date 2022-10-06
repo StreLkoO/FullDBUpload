@@ -188,5 +188,10 @@ namespace ЦАД2.Objects.z_sl
                         n[27], n[28], n[29], n[30], n[31], n[32], n[33], n[34], n[35], n[36],
                         n[37], n[38], n[39]);
         }
+
+        public override string GetCode()
+        {
+            return ID_Z_SL;
+        }
     }
 }

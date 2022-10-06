@@ -44,5 +44,10 @@ namespace ЦАД2.Objects.zap.SL.ONKSL
             this.DIAGFill(n[0], n[1], n[2], n[3],
                           n[4], n[5], n[6]);
         }
+
+        public override string GetCode()
+        {
+            return SL_ID;
+        }
     }
 }

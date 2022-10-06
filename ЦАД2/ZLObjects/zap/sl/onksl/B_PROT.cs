@@ -29,5 +29,10 @@ namespace ЦАД2.Objects.zap.sl.onksl
             D_PROT = string.IsNullOrEmpty(n[1].ToString()) ? null : n[1].ToString()!;
             SL_ID = n[2].ToString()!;
         }
+
+        public override string GetCode()
+        {
+            return SL_ID;
+        }
     }
 }

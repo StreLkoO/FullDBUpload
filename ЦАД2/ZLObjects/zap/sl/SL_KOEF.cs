@@ -12,7 +12,7 @@ namespace ЦАД2.Objects.zap.sl
         public string IDSL { get; set; } = "1";
         public string Z_SL { get; set; } = "Undefined";
         [XmlIgnore]
-        public string? sl_id { get; set; }
+        public string SL_ID { get; set; } = "Undefined";
 
         public SL_KOEF(object z_SL)
         {
@@ -23,7 +23,7 @@ namespace ЦАД2.Objects.zap.sl
         {
             IDSL = idsl.ToString()!;
             Z_SL = z_SL.ToString()!.Replace(",", ".");
-            sl_id = slid.ToString()!;
+            SL_ID = slid.ToString()!;
         }
 
         public SL_KOEF() { }
@@ -36,6 +36,11 @@ namespace ЦАД2.Objects.zap.sl
         public override void Fill(object[] n, TypeFile t)
         {
             this.SLKOEFFill(n[0], n[1], n[2]);
+        }
+
+        public override string GetCode()
+        {
+            return SL_ID;
         }
     }
 }

@@ -58,5 +58,10 @@ namespace ЦАД2.Objects
                 DISP = dvn.ToString();
             }
         }
+
+        public override string GetCode()
+        {
+            return NSCHET;
+        }
     }
 }

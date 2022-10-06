@@ -70,5 +70,10 @@ namespace ЦАД2.Objects.zap.sl
                          n[5], n[6], n[7], n[8], n[9], n[10],
                          n[11], n[12], n[13], new(n[14]));
         }
+
+        public override string GetCode()
+        {
+            return SL_ID;
+        }
     }
 }

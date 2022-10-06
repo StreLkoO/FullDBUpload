@@ -9,5 +9,7 @@ namespace ЦАД2
     public abstract class IObjects
     {
         public abstract void Fill(object[] n, TypeFile t);
+
+        public abstract string GetCode();
     }
 }
