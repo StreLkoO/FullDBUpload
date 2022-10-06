@@ -24,7 +24,24 @@ namespace ЦАД2
             return instance;
         }
 
-        public void QueryData<T>(List<T> values, string path, ViewFile view, string year, string month) where T : IObjects, new()
+        //public void QueryData<T>(List<T> values, string path, ViewFile view, string year, string month) where T : IObjects, new()
+        //{
+        //    using OracleConnection connection = new(ConString);
+        //    try
+        //    {
+        //        connection.Open();
+        //        OracleCommand oc = ReadComand(connection, path);
+        //        AddParams(oc, view, year, month);
+        //        ReadList(values, oc, view);
+        //    }
+        //    catch (Exception)
+        //    {
+        //        throw;
+        //    }
+
+        //}
+
+        public void QueryData<T>(Dictionary<string, List<T>> values, string path, ViewFile view, string year, string month) where T : IObjects, new()
         {
             using OracleConnection connection = new(ConString);
             try
@@ -32,7 +49,7 @@ namespace ЦАД2
                 connection.Open();
                 OracleCommand oc = ReadComand(connection, path);
                 AddParams(oc, view, year, month);
-                ReadList(values, oc, view);
+                ReadMap(values, oc, view);
             }
             catch (Exception)
             {
@@ -41,20 +58,7 @@ namespace ЦАД2
 
         }
 
-        private void ReadList<T>(List<T> values, OracleCommand oc, ViewFile view) where T : IObjects, new()
-        {
-            using OracleDataReader reader = oc.ExecuteReader();
-            object[] n = new object[reader.FieldCount];
-            while (reader.Read())
-            {
-                reader.GetValues(n);
-                T t = new();
-                t.Fill(n, view.TypeFile);
-                values.Add(t);
-            }
-        }
-
-        //private void ReadMap<T>(Dictionary<string,T> values, OracleCommand oc, ViewFile view) where T : IObjects, new()
+        //private void ReadList<T>(List<T> values, OracleCommand oc, ViewFile view) where T : IObjects, new()
         //{
         //    using OracleDataReader reader = oc.ExecuteReader();
         //    object[] n = new object[reader.FieldCount];
@@ -63,9 +67,26 @@ namespace ЦАД2
         //        reader.GetValues(n);
         //        T t = new();
         //        t.Fill(n, view.TypeFile);
-        //        //values.Add(t);
+        //        values.Add(t);
         //    }
         //}
+
+        private void ReadMap<T>(Dictionary<string, List<T>> values, OracleCommand oc, ViewFile view) where T : IObjects, new()
+        {
+            using OracleDataReader reader = oc.ExecuteReader();
+            object[] n = new object[reader.FieldCount];
+            while (reader.Read())
+            {
+                reader.GetValues(n);
+                T t = new();
+                t.Fill(n, view.TypeFile);
+                if (!values.ContainsKey(t.GetCode()))
+                {
+                    values[t.GetCode()] = new List<T>();
+                }
+                values[t.GetCode()].Add(t);
+            }
+        }
 
         private static OracleCommand ReadComand(OracleConnection connection, string path)
         {

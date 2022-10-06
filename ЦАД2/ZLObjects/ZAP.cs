@@ -45,5 +45,10 @@ namespace ЦАД2.Objects
                             n[34], n[35], n[36]);
             Nschet = n[37].ToString()!;
         }
+
+        public override string GetCode()
+        {
+            return Nschet;
+        }
     }
 }

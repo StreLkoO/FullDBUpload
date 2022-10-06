@@ -63,7 +63,7 @@ namespace ЦАД2
                 foreach (ViewFile v in viewFilesList)
                 {
                     label7.Text = "Выгружаю: \n" + v.Name + " за " + textBox3.Text + "-" + string.Format("{0:00}", i);
-                    await Task.Run(() => m.Serialize(v, textBox3.Text, string.Format("{0:00}", i), textBox4.Text));
+                    await Task.Run(() => m.SerializeWithMap(v, textBox3.Text, string.Format("{0:00}", i), textBox4.Text));
                     GC.Collect();
                 }
             }

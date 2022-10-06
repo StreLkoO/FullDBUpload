@@ -11,5 +11,4 @@ using System.Diagnostics.CodeAnalysis;
 [assembly: SuppressMessage("Style", "IDE1006:Стили именования", Justification = "<Ожидание>", Scope = "member", Target = "~P:ЦАД2.Objects.zap.SANK.S_TIP")]
 [assembly: SuppressMessage("Style", "IDE1006:Стили именования", Justification = "<Ожидание>", Scope = "member", Target = "~P:ЦАД2.Objects.zap.SANK.S_COM")]
 [assembly: SuppressMessage("Style", "IDE1006:Стили именования", Justification = "<Ожидание>", Scope = "member", Target = "~P:ЦАД2.Objects.zap.SANK.S_IST")]
-[assembly: SuppressMessage("Performance", "CA1822:Пометьте члены как статические", Justification = "<Ожидание>", Scope = "member", Target = "~M:ЦАД2.OracleReader.ReadList``1(System.Collections.Generic.List{``0},Oracle.ManagedDataAccess.Client.OracleCommand,ЦАД2.ViewFile)")]
 [assembly: SuppressMessage("Performance", "CA1822:Пометьте члены как статические", Justification = "<Ожидание>", Scope = "member", Target = "~M:ЦАД2.OracleReader.AddParams(Oracle.ManagedDataAccess.Client.OracleCommand,ЦАД2.ViewFile,System.String,System.String)")]

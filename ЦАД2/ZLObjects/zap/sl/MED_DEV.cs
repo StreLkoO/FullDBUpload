@@ -17,7 +17,7 @@ namespace ЦАД2.Objects.zap.sl
 
         public MED_DEV() { }
 
-        public void medDevFill(object dateMed, object codeMedDev, object numberSer, object IDserv)
+        public void MedDevFill(object dateMed, object codeMedDev, object numberSer, object IDserv)
         {
             DATE_MED = dateMed.ToString()!;
             CODE_MEDDEV = codeMedDev.ToString()!;
@@ -27,7 +27,12 @@ namespace ЦАД2.Objects.zap.sl
 
         public override void Fill(object[] n, TypeFile t)
         {
-            this.medDevFill(n[0], n[1], n[2], n[3]);
+            this.MedDevFill(n[0], n[1], n[2], n[3]);
+        }
+
+        public override string GetCode()
+        {
+            return IDSERV;
         }
     }
 }

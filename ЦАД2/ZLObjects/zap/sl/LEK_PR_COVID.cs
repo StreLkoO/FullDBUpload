@@ -60,5 +60,10 @@ namespace ЦАД2.Objects.zap.sl
             this.LEKFill(n[0], n[1], n[2], n[3], n[4],
                         new(n[5], n[6], n[7], n[8]), n[9], n[10]);
         }
+
+        public override string GetCode()
+        {
+            return SL_ID;
+        }
     }
 }

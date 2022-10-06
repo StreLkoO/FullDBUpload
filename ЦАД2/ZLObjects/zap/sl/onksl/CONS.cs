@@ -35,5 +35,10 @@ namespace ЦАД2.Objects.zap.sl.ONKSL
         {
             this.CONSFill(n[0], n[1], n[2]);
         }
+
+        public override string GetCode()
+        {
+            return SL_ID;
+        }
     }
 }
