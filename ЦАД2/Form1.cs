@@ -31,7 +31,6 @@ namespace ЦАД2
 
         private async void Button1_Click(object sender, EventArgs e)
         {
-            //button1.Enabled = false;
             List<ViewFile> viewFilesList = new List<ViewFile>();
             RadioButton? radioBtn = this.groupBox1.Controls.OfType<RadioButton>()
                                         .Where(x => x.Checked).FirstOrDefault();
