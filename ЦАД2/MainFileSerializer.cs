@@ -1,0 +1,227 @@
+﻿using System.Text;
+using System.Xml;
+using System.Xml.Serialization;
+using ЦАД2.Objects;
+using ЦАД2.Objects.z_sl;
+using ЦАД2.Objects.zap;
+using ЦАД2.Objects.zap.sl;
+using ЦАД2.Objects.zap.sl.onksl;
+using ЦАД2.Objects.zap.sl.ONKSL;
+using ЦАД2.Objects.zap.SL;
+using ЦАД2.Objects.zap.SL.ONKSL;
+
+namespace ЦАД2
+{
+    public class MainFileSerializer
+    {
+        private string ConString;
+        private static MainFileSerializer? instance;
+
+        private MainFileSerializer(string conString)
+        {
+            ConString = conString;
+        }
+
+        public static MainFileSerializer Get(string ConString)
+        {
+            if (instance == null)
+            {
+                instance = new MainFileSerializer(ConString);
+            }
+            else
+            {
+                instance.ConString = ConString;
+            }
+            return instance;
+        }
+
+        public void Serialize(ViewFile view, string year, string month, string fileDate)
+        {
+            OracleReader or = OracleReader.Get(ConString);
+            List<SCHET> scheta = new();
+            List<ZAP> zaps = new();
+            List<SL> sl = new();
+            List<USL> usl = new();
+            List<SANK> sank = new();
+            List<DS2_N> ds2_n = new();
+            List<KSG_KPG> ksg_kpg = new();
+            List<LEK_PR_COVID> lek_pr_covid = new();
+            List<SL_KOEF> sl_koef = new();
+            List<NAZ> naz = new();
+            List<MED_DEV> med_dev = new();
+            Task.Run(() => or.QueryData(scheta, "д2_счет.txt", view, year, month));
+            Task.Run(() => or.QueryData(zaps, "д2_зак_случай.txt", view, year, month));
+            Task.Run(() => or.QueryData(sl, "д2_случай.txt", view, year, month));
+            or.QueryData(usl, "д2_услуга.txt", view, year, month);
+            or.QueryData(sank, "д2_санк.txt", view, year, month);
+            or.QueryData(ds2_n, "д2_доп_дз.txt", view, year, month);
+
+            if (view.TypeFile == TypeFile.ONK || view.TypeFile == TypeFile.Else)
+            {
+                or.QueryData(ksg_kpg, "д2_ксг_кпг.txt", view, year, month);
+                or.QueryData(sl_koef, "д2_сл_коеф.txt", view, year, month);
+            }
+
+
+            if (view.TypeFile == TypeFile.Else)
+            {
+                or.QueryData(med_dev, "д2_мед_дев.txt", view, year, month);
+                or.QueryData(lek_pr_covid, "д2_лек_пр_ковид.txt", view, year, month);
+            }
+
+            if (view.TypeFile == TypeFile.DVN)
+                or.QueryData(naz, "д2_назн.txt", view, year, month);
+
+            List<MR_USL_N> mr_usl_n = new();
+            or.QueryData(mr_usl_n, "д2_мр_усл.txt", view, year, month);
+            List<ONK_SL> onk_sl = new();
+            List<NAPR> napr = new();
+            List<CONS> cons = new();
+            List<B_DIAG> b_diag = new();
+            List<B_PROT> b_prot = new();
+            List<ONK_USL> onk_usl = new();
+            List<LEK_PR> lek_pr = new();
+            if (view.TypeFile == TypeFile.ONK)
+            {
+                or.QueryData(onk_sl, "д2_онк_случай.txt", view, year, month);
+                or.QueryData(napr, "д2_напр.txt", view, year, month);
+                or.QueryData(cons, "д2_конс.txt", view, year, month);
+                or.QueryData(b_diag, "д2_диаг.txt", view, year, month);
+                or.QueryData(b_prot, "д2_прот.txt", view, year, month);
+                or.QueryData(onk_usl, "д2_онк_усл.txt", view, year, month);
+                or.QueryData(lek_pr, "д2_лек_пр.txt", view, year, month);
+            }
+
+
+
+            XmlSerializer xmlSerializer = new(typeof(ZL_LIST));
+            foreach (SCHET schet_n in scheta)
+            {
+                List<ZAP> zap = zaps.FindAll((x) => x.Nschet == schet_n.NSCHET);
+                List<SANK> SankOnSchet = sank.FindAll((x) => x.NSCHET == schet_n.NSCHET);
+                List<SL> slOnSchet = sl.FindAll((x) => x.NSCHET == schet_n.NSCHET);
+                List<DS2_N> ds2InSchet = ds2_n.FindAll((x) => x.NSCHET == schet_n.NSCHET);
+                List<USL> uslInSchet = usl.FindAll((x) => x.NSCHET == schet_n.NSCHET);
+                List<MR_USL_N> mrInSchet = mr_usl_n.FindAll((x) => x.NSCHET == schet_n.NSCHET);
+                foreach (ZAP z in zap)
+                {
+                    List<SANK> SankOnZsl = SankOnSchet.FindAll((x) => x.IDCASE == z.Z_SL.IDCASE);
+                    z.Z_SL.SANK.AddRange(SankOnZsl);
+                    double sum = 0;
+                    foreach (SANK s in SankOnZsl)
+                    {
+                        sum += double.Parse(s.S_SUM.Replace(".", ","));
+                    }
+                    z.Z_SL.SANK_IT = sum.ToString().Replace(",", ".");
+                    List<SL> slOnZsl = slOnSchet.FindAll((x) => x.ID_Z_SL == z.Z_SL.IDCASE);
+                    foreach (SL s in slOnZsl)
+                    {
+                        List<DS2_N> ds2InSl = ds2InSchet.FindAll((x) => x.SL_ID == s.SL_ID);
+                        if (view.TypeFile == TypeFile.DVN)
+                        {
+
+                            s.DS2_N.AddRange(ds2InSl);
+                            List<NAZ> nazInSl = naz.FindAll((x) => x.SL_ID == s.SL_ID);
+                            s.NAZ.AddRange(nazInSl);
+                        }
+                        else
+                        {
+                            if (ds2InSl.Count > 0)
+                            {
+                                s.DS2 = new();
+                                foreach (DS2_N d in ds2InSl)
+                                {
+                                    s.DS2!.Add(d.DS2);
+                                }
+                            }
+                        }
+                        if (view.TypeFile == TypeFile.Else)
+                        {
+                            List<LEK_PR_COVID> LekCovidInSl = lek_pr_covid.FindAll((x) => x.SL_ID == s.SL_ID);
+                            s.LEK_PR.AddRange(LekCovidInSl);
+                        }
+                        if (view.TypeFile == TypeFile.ONK || view.TypeFile == TypeFile.VMP)
+                        {
+                            List<NAPR> naprInSl = napr.FindAll((x) => x.SL_ID == s.SL_ID);
+                            s.NAPR.AddRange(naprInSl);
+                            List<CONS> consInSl = cons.FindAll((x) => x.SL_ID == s.SL_ID);
+                            s.CONS.AddRange(consInSl);
+                            if (s.DS_ONK != "1")
+                            {
+                                List<ONK_SL> onkInSl = onk_sl.FindAll((x) => x.SL_ID == s.SL_ID);
+                                foreach (ONK_SL osl in onkInSl)
+                                {
+                                    List<B_DIAG> diagInSL = b_diag.FindAll((x) => x.SL_ID == s.SL_ID);
+                                    osl.B_DIAG.AddRange(diagInSL);
+                                    List<B_PROT> ProtInSL = b_prot.FindAll((x) => x.SL_ID == s.SL_ID);
+                                    osl.B_PROT.AddRange(ProtInSL);
+                                    List<ONK_USL> onkUslInSL = onk_usl.FindAll((x) => x.SL_ID == s.SL_ID);
+                                    foreach (ONK_USL oNK_USL in onkUslInSL)
+                                    {
+                                        List<LEK_PR> lekPrInSL = lek_pr.FindAll((x) => x.SL_ID == s.SL_ID);
+                                        oNK_USL.LEK_PR.AddRange(lekPrInSL);
+                                        osl.ONK_USL.Add(oNK_USL);
+                                    }
+                                    s.ONK_SL.Add(osl);
+                                }
+                            }
+                        }
+                        if (view.TypeFile != TypeFile.DVN && view.TypeFile != TypeFile.VMP)
+                        {
+                            List<KSG_KPG> ksgInSL = ksg_kpg.FindAll((x) => x.SL_ID == s.SL_ID);
+                            foreach (KSG_KPG ksg in ksgInSL)
+                            {
+                                if (ksg.SL_KOEF == null)
+                                {
+                                    List<SL_KOEF> slKoefInSL = sl_koef.FindAll((x) => x.sl_id == s.SL_ID);
+                                    if (slKoefInSL.Count > 0)
+                                    {
+                                        ksg.SL_KOEF = new();
+                                        ksg.SL_KOEF.AddRange(slKoefInSL);
+                                    }
+
+                                }
+                                s.KSG_KPG.Add(ksg);
+                            }
+                            //s.KSG_KPG.AddRange(ksgInSL);
+                        }
+                        List<USL> uslInSL = uslInSchet.FindAll((x) => x.SL_ID == s.SL_ID);
+                        foreach (USL uSL in uslInSL)
+                        {
+                            List<MED_DEV> medDevInUsl = med_dev.FindAll((x) => x.IDSERV == uSL.IDSERV);
+                            if (medDevInUsl.Count > 0)
+                            {
+                                uSL.MED_DEV = new();
+                                uSL.MED_DEV.AddRange(medDevInUsl);
+                            }
+                            List<MR_USL_N> mrInUsl = mrInSchet.FindAll((x) => x.IDSERV == uSL.IDSERV);
+                            if (view.TypeFile == TypeFile.DVN || view.TypeFile == TypeFile.Else)
+                            {
+                                uSL.MR_USL_N = new();
+                                uSL.MR_USL_N.AddRange(mrInUsl);
+                            }
+                            else
+                            {
+                                uSL.PRVS = mrInUsl[0].PRVS;
+                                uSL.CODE_MD = mrInUsl[0].CODE_MD;
+                            }
+                            s.USL.Add(uSL);
+
+                        }
+                        z.Z_SL.SL.Add(s);
+                    }
+                }
+
+                ZL_LIST zL = new(new ZGLV(view.Version, fileDate, schet_n.NSCHET, zap.Count), schet_n, zap);
+                Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
+                using XmlTextWriter tw = new(Directory.GetCurrentDirectory() + "\\new folder\\" + schet_n.NSCHET + ".xml", Encoding.GetEncoding(1251));//+ view.Name.Substring(1,2) + "\\"
+                XmlSerializerNamespaces xsn = new();
+                xsn.Add(String.Empty, String.Empty);
+                xmlSerializer.Serialize(tw, zL, xsn);
+
+            }
+        }
+
+
+    }
+}
