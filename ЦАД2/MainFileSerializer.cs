@@ -42,38 +42,38 @@ namespace ЦАД2
             Dictionary<string, List<ZAP>> zaps = new();
             Dictionary<string, List<SL>> sl = new();
             Dictionary<string, List<USL>> usl = new();
+            Dictionary<string, List<MR_USL_N>> mr_usl_n = new();
             Dictionary<string, List<SANK>> sank = new();
             Dictionary<string, List<DS2_N>> ds2_n = new();
-            Dictionary<string, List<KSG_KPG>> ksg_kpg = new();
-            Dictionary<string, List<LEK_PR_COVID>> lek_pr_covid = new();
-            Dictionary<string, List<SL_KOEF>> sl_koef = new();
-            Dictionary<string, List<NAZ>> naz = new();
-            Dictionary<string, List<MED_DEV>> med_dev = new();
-            Task.Run(() => or.QueryData(scheta, "д2_счет.txt", view, year, month));
-            Task.Run(() => or.QueryData(zaps, "д2_зак_случай.txt", view, year, month));
-            Task.Run(() => or.QueryData(sl, "д2_случай.txt", view, year, month));
-            or.QueryData(usl, "д2_услуга.txt", view, year, month);
+            Task t1 = Task.Run(() => or.QueryData(scheta, "д2_счет.txt", view, year, month));
+            Task t2 = Task.Run(() => or.QueryData(zaps, "д2_зак_случай.txt", view, year, month));
+            Task t3 = Task.Run(() => or.QueryData(sl, "д2_случай.txt", view, year, month));
+            Task t4 = Task.Run(() => or.QueryData(usl, "д2_услуга.txt", view, year, month));
+            Task t5 = Task.Run(() => or.QueryData(mr_usl_n, "д2_мр_усл.txt", view, year, month));
             or.QueryData(sank, "д2_санк.txt", view, year, month);
             or.QueryData(ds2_n, "д2_доп_дз.txt", view, year, month);
 
+            Dictionary<string, List<KSG_KPG>> ksg_kpg = new();
+            Dictionary<string, List<SL_KOEF>> sl_koef = new();
             if (view.TypeFile == TypeFile.ONK || view.TypeFile == TypeFile.Else)
             {
                 or.QueryData(ksg_kpg, "д2_ксг_кпг.txt", view, year, month);
                 or.QueryData(sl_koef, "д2_сл_коеф.txt", view, year, month);
             }
 
-
+            Dictionary<string, List<LEK_PR_COVID>> lek_pr_covid = new();
+            Dictionary<string, List<MED_DEV>> med_dev = new();
             if (view.TypeFile == TypeFile.Else)
             {
                 or.QueryData(med_dev, "д2_мед_дев.txt", view, year, month);
                 or.QueryData(lek_pr_covid, "д2_лек_пр_ковид.txt", view, year, month);
             }
 
+            Dictionary<string, List<NAZ>> naz = new();
             if (view.TypeFile == TypeFile.DVN)
                 or.QueryData(naz, "д2_назн.txt", view, year, month);
 
-            Dictionary<string, List<MR_USL_N>> mr_usl_n = new();
-            or.QueryData(mr_usl_n, "д2_мр_усл.txt", view, year, month);
+            
             Dictionary<string, List<ONK_SL>> onk_sl = new();
             Dictionary<string, List<NAPR>> napr = new();
             Dictionary<string, List<CONS>> cons = new();
@@ -92,7 +92,8 @@ namespace ЦАД2
                 or.QueryData(lek_pr, "д2_лек_пр.txt", view, year, month);
             }
 
-
+            
+            t1.Wait(); t2.Wait(); t3.Wait(); t4.Wait(); t5.Wait();
 
             XmlSerializer xmlSerializer = new(typeof(ZL_LIST));
             foreach (var schet_n in scheta)
